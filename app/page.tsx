@@ -34,13 +34,13 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/appointment"
+                  href="/Appointment"
                   className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl text-lg font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 text-center"
                 >
                   Book Your Appointment
                 </Link>
                 <Link
-                  href="/services"
+                  href="/Service"
                   className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 text-center"
                 >
                   Our Services

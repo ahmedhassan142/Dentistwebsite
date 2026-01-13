@@ -106,7 +106,7 @@ export default function Services() {
                 </div>
                 
                 <Link
-                  href="/appointment"
+                  href="/Appointment"
                   className="block w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white text-center py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   Book This Service

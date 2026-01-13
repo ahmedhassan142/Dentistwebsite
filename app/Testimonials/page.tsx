@@ -36,20 +36,34 @@ export default function Testimonials() {
     }
   }, [selectedTreatment, testimonials]);
 
-  const fetchTestimonials = async () => {
-    try {
-      const response = await fetch('/api/testimonials?limit=50');
-      const result = await response.json();
-      
-      if (result.success) {
-        setTestimonials(result.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch testimonials:', error);
-    } finally {
-      setLoading(false);
+  // app/testimonials/page.tsx - Update the fetchTestimonials function
+const fetchTestimonials = async () => {
+  try {
+    setLoading(true);
+    console.log('Fetching testimonials...');
+    
+    const response = await fetch('/api/testimonials?limit=50');
+    console.log('Response status:', response.status);
+    
+    const result = await response.json();
+    console.log('API response:', result);
+    
+    if (result.success) {
+      setTestimonials(result.data || []);
+      console.log('Testimonials fetched:', result.data?.length || 0);
+    } else {
+      console.error('API returned error:', result.error);
+      // Set empty array if API fails
+      setTestimonials([]);
     }
-  };
+  } catch (error) {
+    console.error('Failed to fetch testimonials:', error);
+    // Set empty array on error
+    setTestimonials([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const treatments = [
     'all',
@@ -148,13 +162,13 @@ export default function Testimonials() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="/appointment"
+                href="/Appointment"
                 className="inline-block bg-white text-blue-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
               >
                 Book Your Appointment
               </a>
               <a
-                href="/contact"
+                href="/Contact"
                 className="inline-block border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-300"
               >
                 Contact Us
