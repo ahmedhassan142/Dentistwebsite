@@ -2,6 +2,21 @@
 'use client';
 
 import { useState } from 'react';
+import { MapPin, Phone, Mail, Clock, Navigation } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the map component to avoid SSR issues
+const DentalClinicMap = dynamic(() => import('../components/Mapcomponent'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-gradient-to-r from-blue-100 to-teal-100 h-64 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-blue-700 font-medium">Loading interactive map...</p>
+      </div>
+    </div>
+  )
+});
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -16,6 +31,22 @@ export default function Contact() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Clinic coordinates (update with real coordinates)
+  const clinicPosition: [number, number] = [34.0522, -118.2437]; // Los Angeles coordinates
+  const clinicInfo = {
+    name: "Elite Dental Clinic",
+    address: "123 Dental Avenue, Medical District, CA 90210",
+    phone: "(555) 123-4567",
+    emergencyPhone: "(555) 123-4568",
+    email: "info@elitedental.com",
+    appointmentEmail: "appointments@elitedental.com",
+    hours: {
+      weekdays: "Monday - Friday: 8:00 AM - 6:00 PM",
+      saturday: "Saturday: 9:00 AM - 3:00 PM",
+      sunday: "Closed on Sundays and major holidays"
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -124,53 +155,57 @@ export default function Contact() {
     }
   };
 
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(clinicInfo.address);
+      setSubmitMessage('Address copied to clipboard!');
+      setIsSuccess(true);
+      setTimeout(() => setSubmitMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to copy address:', error);
+      setSubmitMessage('Failed to copy address to clipboard');
+      setIsSuccess(false);
+    }
+  };
+
   const contactInfo = [
     {
-      icon: '📍',
+      icon: <MapPin className="w-5 h-5 text-blue-600" />,
       title: 'Visit Our Clinic',
-      details: ['123 Dental Avenue', 'Medical District, CA 90210'],
-      description: 'Free parking available in front of the building'
+      details: [clinicInfo.address],
+      description: 'Free parking available in front of the building',
+      action: copyAddress
     },
     {
-      icon: '📞',
+      icon: <Phone className="w-5 h-5 text-blue-600" />,
       title: 'Call Us',
-      details: ['(555) 123-4567', '(555) 123-4568 Emergency'],
+      details: [clinicInfo.phone, clinicInfo.emergencyPhone + ' Emergency'],
       description: '24/7 emergency dental services available'
     },
     {
-      icon: '✉️',
+      icon: <Mail className="w-5 h-5 text-blue-600" />,
       title: 'Email Us',
-      details: ['info@elitedental.com', 'appointments@elitedental.com'],
+      details: [clinicInfo.email, clinicInfo.appointmentEmail],
       description: 'We respond within 24 hours'
     },
     {
-      icon: '🕒',
+      icon: <Clock className="w-5 h-5 text-blue-600" />,
       title: 'Office Hours',
-      details: ['Mon-Fri: 8:00 AM - 6:00 PM', 'Saturday: 9:00 AM - 3:00 PM'],
-      description: 'Closed on Sundays and major holidays'
+      details: [clinicInfo.hours.weekdays, clinicInfo.hours.saturday],
+      description: clinicInfo.hours.sunday
     }
   ];
 
   return (
-    <div 
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: 'url("/images/contact-bg.jpg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
       {/* Header */}
-      <div 
-        className="text-white py-20 relative"
-        style={{
-          backgroundImage: 'url("/images/contact-hero-bg.jpg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-teal-500/90"></div>
+      <div className="text-white py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-teal-500">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+          </div>
+        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6">Get In Touch</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
@@ -179,7 +214,7 @@ export default function Contact() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {submitMessage && (
           <div className={`mb-8 p-4 rounded-lg ${
             isSuccess 
@@ -196,40 +231,79 @@ export default function Contact() {
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Contact Information</h2>
             <div className="grid gap-6">
               {contactInfo.map((item, index) => (
-                <div key={index} className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                <div key={index} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                   <div className="flex items-start">
-                    <div className="text-2xl mr-4">{item.icon}</div>
-                    <div>
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                      {item.icon}
+                    </div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
                       {item.details.map((detail, idx) => (
                         <p key={idx} className="text-gray-700 mb-1">{detail}</p>
                       ))}
                       <p className="text-sm text-gray-500 mt-2">{item.description}</p>
+                      {item.action && (
+                        <button
+                          onClick={item.action}
+                          className="mt-3 text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1 rounded-md transition-colors"
+                        >
+                          Copy Address
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Map Placeholder */}
-            <div className="mt-8 bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Find Our Location</h3>
-              <div 
-                className="bg-gray-200 h-64 rounded-lg flex items-center justify-center relative overflow-hidden"
-                style={{
-                  backgroundImage: 'url("/images/map-placeholder.jpg")',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                <div className="absolute inset-0 bg-blue-600/20"></div>
-                <p className="text-gray-600 relative z-10 bg-white/90 px-4 py-2 rounded-lg">Interactive Map Here</p>
+            {/* Interactive Map - Replacing placeholder */}
+            <div className="mt-8 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Find Our Location</h3>
+                  <p className="text-gray-600">{clinicInfo.address}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(clinicInfo.address)}`, '_blank')}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center space-x-2 text-sm"
+                  >
+                    <span>G</span>
+                    <span>Google Maps</span>
+                  </button>
+                  <button
+                    onClick={() => window.open(`http://maps.apple.com/?daddr=${clinicPosition[0]},${clinicPosition[1]}`, '_blank')}
+                    className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center space-x-2 text-sm"
+                  >
+                    <span>🍎</span>
+                    <span>Apple Maps</span>
+                  </button>
+                </div>
+              </div>
+              <div className="h-80 rounded-lg overflow-hidden border border-gray-200">
+                <DentalClinicMap 
+                  position={clinicPosition}
+                  zoom={16}
+                  clinicName={clinicInfo.name}
+                  address={clinicInfo.address}
+                  phone={clinicInfo.phone}
+                  emergencyPhone={clinicInfo.emergencyPhone}
+                />
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <div className="flex items-center text-blue-700">
+                  <Navigation className="w-5 h-5 mr-2 flex-shrink-0" />
+                  <p className="text-sm">
+                    <span className="font-semibold">Directions: </span>
+                    Click the marker on the map to get turn-by-turn directions via Google Maps or Apple Maps.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -247,7 +321,7 @@ export default function Contact() {
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3 border ${
                       errors.name ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white/50 disabled:opacity-50`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50`}
                     placeholder="Your full name"
                   />
                   {errors.name && (
@@ -267,7 +341,7 @@ export default function Contact() {
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3 border ${
                       errors.email ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white/50 disabled:opacity-50`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50`}
                     placeholder="your.email@example.com"
                   />
                   {errors.email && (
@@ -290,7 +364,7 @@ export default function Contact() {
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3 border ${
                       errors.phone ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white/50 disabled:opacity-50`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50`}
                     placeholder="(555) 123-4567"
                   />
                   {errors.phone && (
@@ -309,7 +383,7 @@ export default function Contact() {
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3 border ${
                       errors.subject ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white/50 disabled:opacity-50`}
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50`}
                   >
                     <option value="">Select a subject</option>
                     <option value="appointment">Appointment Inquiry</option>
@@ -338,7 +412,7 @@ export default function Contact() {
                   disabled={isSubmitting}
                   className={`w-full px-4 py-3 border ${
                     errors.message ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white/50 disabled:opacity-50`}
+                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50`}
                   placeholder="Please describe your inquiry in detail..."
                 />
                 {errors.message && (
