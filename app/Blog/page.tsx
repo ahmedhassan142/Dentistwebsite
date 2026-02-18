@@ -132,7 +132,7 @@ export default function Blog() {
                   </div>
                   
                   <h2 className="text-xl font-bold text-gray-900 mb-3 leading-tight hover:text-blue-600 transition-colors">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    <Link href={`/Blog/${post.slug}`}>{post.title}</Link>
                   </h2>
                   
                   <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3">
